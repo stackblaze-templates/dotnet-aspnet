@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: dotnet-aspnet
+    runtime: docker
+    plan: starter
+    autoDeploy: false
