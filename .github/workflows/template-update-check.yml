@@ -1,0 +1,29 @@
+name: Weekly Template Update Check
+
+on:
+  schedule:
+    - cron: "17 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  create-update-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for existing open issue
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          existing=$(gh issue list --label "template-update" --state open --json number --jq 'length')
+          echo "exists=$existing" >> "$GITHUB_OUTPUT"
+      - name: Create update check issue
+        if: steps.check.outputs.exists == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \n            --title "Weekly template update check" \n            --label "template-update" \n            --assignee "copilot-swe-agent" \n            --body "Check if this template needs updates. If updates are needed, open a PR. If everything is up to date, close this issue."
